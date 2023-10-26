@@ -1,4 +1,4 @@
-# Galton Board
+# **Galton Board**
 
 The **Galton board**, also known as the *Galton box*, *quincunx*, or *bean machine*, is a device invented by Sir Francis Galton to demonstrate the central limit theorem. Specifically, it illustrates that with a sufficient sample size, the binomial distribution approaches a normal distribution. This device has also provided insights into the concept of regression to the mean, often referred to as "reversion to mediocrity".
 
