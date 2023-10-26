@@ -18,3 +18,30 @@ You can view the functioning of the Galton board online at [phitter.io/galton-bo
 All information is sourced from [Galton Board](https://en.wikipedia.org/wiki/Galton_board).
 
 ![Alt text](./multimedia/image.png)
+
+## Running the Project with Vite and Vue
+
+To run the project using Vite and Vue, follow these steps:
+
+### Prerequisites
+
+Ensure you have [Node.js](https://nodejs.org/) and [npm](https://www.npmjs.com/) (Node Package Manager) installed on your system.
+
+### Setup
+
+1. **Clone the Repository**:
+    ```bash
+    git clone https://github.com/phitterio/galton-board.git
+    cd https://github.com/phitterio/galton-board.git
+    ```
+
+2. **Install Dependencies**:
+   Make sure you are in the root directory of your project, then run:
+    ```bash
+    npm install
+    ```
+
+3. **Start the Development Server with Vite**:
+    ```bash
+    npm run dev
+    ```
