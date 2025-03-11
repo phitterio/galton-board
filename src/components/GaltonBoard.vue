@@ -1,5 +1,5 @@
 <template>
-    <section id="galtonCanvasContainer" :width="CANVAS_WIDTH" :height="CANVAS_HEIGHT"></section>
+    <div id="galtonCanvasContainer"></div>
 </template>
 
 <script lang="ts">
@@ -13,84 +13,114 @@ export default defineComponent({
         const Render = Matter.Render;
         const World = Matter.World;
         const Bodies = Matter.Bodies;
-        const Composites = Matter.Composites;
         const Runner = Matter.Runner;
-        return { Engine, Render, World, Bodies, Composites, Runner };
+        return { Engine, Render, World, Bodies, Runner };
     },
     data() {
         return {
-            CANVAS_WIDTH: 400,
-            CANVAS_HEIGHT: 700,
-            CANVAS_BACKGROUND_COLOR: "yellow",
-            BORDER_WIDTH: 15,
-            BORDER_COLOR: "red",
-            RAMP_HEIGHT: 30,
-            RAMP_CHANNEL_WIDTH: 30,
-            RAMP_ANGLE: 22,
-            RAMP_PERCECENTAGE_Y: 0.06,
-            NAILS_COLOR: "blue",
-            NAILS_Y_MARGIN_INIT: 45,
-            NAILS_Y_MARGIN: 2.2,
-            NAILS_RADIUS: 6,
-            NAILS_X_MARGIN: 24,
-            NAILS_STRUCTURE: [
-                { id: 1, nails: 9 },
-                { id: 2, nails: 12 },
-                { id: 3, nails: 15 },
-                { id: 4, nails: 14 },
-                { id: 5, nails: 15 },
-                { id: 6, nails: 14 },
-                { id: 7, nails: 15 },
-                { id: 8, nails: 14 },
-                { id: 9, nails: 15 },
-                { id: 10, nails: 14 },
-                { id: 11, nails: 15 },
-                { id: 12, nails: 14 },
-                { id: 13, nails: 15 },
-                { id: 14, nails: 14 },
-                { id: 15, nails: 15 },
-            ],
-            WALLS_WIDTH: 8,
-            WALLS_COLOR: "gray",
-            BALLS_NUMBER: 200,
-            BALLS_RADIUS: 3,
-            BALLS_COLOR: "green",
-            BALLS_FRICTION: 0.00001,
-            BALLS_RESTITUTION: 0.7,
-            BALLS_DENSITY: 0.001,
-            BALLS_FRICTION_AIR: 0.042,
-            BALLS_SLEEP_TRESHHOLD: 120,
-            BALLS_MICROSECONDS_APPEAR: 50,
-            isRunningSimulation: true,
+            // Canvas Configuration
+            canvasConfig: {
+                width: 400,
+                height: 700,
+                backgroundColor: "yellow",
+                borderWidth: 15,
+                borderColor: "red",
+            },
+            // Ramp Configuration
+            rampConfig: {
+                height: 30,
+                channelWidth: 30,
+                angle: 22,
+                percentageY: 0.06,
+            },
+            // Nails Configuration
+            nailsConfig: {
+                color: "blue",
+                yMarginInit: 45,
+                yMargin: 2.2,
+                radius: 6,
+                xMargin: 24,
+                structure: [
+                    { id: 1, nails: 9 },
+                    { id: 2, nails: 12 },
+                    { id: 3, nails: 15 },
+                    { id: 4, nails: 14 },
+                    { id: 5, nails: 15 },
+                    { id: 6, nails: 14 },
+                    { id: 7, nails: 15 },
+                    { id: 8, nails: 14 },
+                    { id: 9, nails: 15 },
+                    { id: 10, nails: 14 },
+                    { id: 11, nails: 15 },
+                    { id: 12, nails: 14 },
+                    { id: 13, nails: 15 },
+                    { id: 14, nails: 14 },
+                    { id: 15, nails: 15 },
+                ],
+            },
+            // Walls Configuration
+            wallsConfig: {
+                width: 8,
+                color: "gray",
+            },
+            // Balls Configuration
+            ballsConfig: {
+                number: 1200,
+                radius: 3,
+                colors: ["green", "orange", "black", "white"],
+                friction: 0.00001,
+                restitution: 0.7,
+                density: 0.001,
+                frictionAir: 0.042,
+                sleepThreshold: 120,
+                spawnInterval: 50,
+            },
+            // Simulation Parameters
+            simulationParams: {
+                isRunning: true,
+                ballCounter: 0,
+                ballColorIndex: 0,
+                gravity: 1.5,
+            },
         };
     },
     computed: {
         borderTop() {
-            return this.createBorderRectangle(this.CANVAS_WIDTH / 2, 0 + this.BORDER_WIDTH / 2, this.CANVAS_WIDTH, this.BORDER_WIDTH);
+            return this.createBorderRectangle(this.canvasConfig.width / 2, this.canvasConfig.borderWidth / 2, this.canvasConfig.width, this.canvasConfig.borderWidth);
         },
         borderBottom() {
-            return this.createBorderRectangle(this.CANVAS_WIDTH / 2, this.CANVAS_HEIGHT - this.BORDER_WIDTH / 2, this.CANVAS_WIDTH, this.BORDER_WIDTH);
+            return this.createBorderRectangle(
+                this.canvasConfig.width / 2,
+                this.canvasConfig.height - this.canvasConfig.borderWidth / 2,
+                this.canvasConfig.width,
+                this.canvasConfig.borderWidth
+            );
         },
         borderLeft() {
-            return this.createBorderRectangle(0 + this.BORDER_WIDTH / 2, this.CANVAS_HEIGHT / 2, this.BORDER_WIDTH, this.CANVAS_HEIGHT);
+            return this.createBorderRectangle(this.canvasConfig.borderWidth / 2, this.canvasConfig.height / 2, this.canvasConfig.borderWidth, this.canvasConfig.height);
         },
         borderRight() {
-            return this.createBorderRectangle(this.CANVAS_WIDTH - this.BORDER_WIDTH / 2, this.CANVAS_HEIGHT / 2, this.BORDER_WIDTH, this.CANVAS_HEIGHT);
+            return this.createBorderRectangle(
+                this.canvasConfig.width - this.canvasConfig.borderWidth / 2,
+                this.canvasConfig.height / 2,
+                this.canvasConfig.borderWidth,
+                this.canvasConfig.height
+            );
         },
-        RAMP_WIDTH() {
-            return (this.CANVAS_WIDTH - this.RAMP_CHANNEL_WIDTH) / 2;
+        rampWidth() {
+            return (this.canvasConfig.width - this.rampConfig.channelWidth) / 2;
         },
         rampLeftTopCoordinates() {
             const x1 = 0;
-            const y1 = this.RAMP_PERCECENTAGE_Y * this.CANVAS_HEIGHT;
-            const x2 = x1 + this.RAMP_WIDTH;
-            const y2 = y1 + this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180));
-            const x3 = x1 + this.RAMP_WIDTH;
-            const y3 = y2 + this.RAMP_HEIGHT;
+            const y1 = this.rampConfig.percentageY * this.canvasConfig.height;
+            const x2 = x1 + this.rampWidth;
+            const y2 = y1 + this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180));
+            const x3 = x1 + this.rampWidth;
+            const y3 = y2 + this.rampConfig.height;
             const x4 = 0;
-            const y4 = y1 + this.RAMP_HEIGHT;
-            const centerX = this.RAMP_WIDTH / 2;
-            const centerY = y1 + (this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180))) / 2 + this.RAMP_HEIGHT / 2;
+            const y4 = y1 + this.rampConfig.height;
+            const centerX = this.rampWidth / 2;
+            const centerY = y1 + (this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180))) / 2 + this.rampConfig.height / 2;
             return { x1, y1, x2, y2, x3, y3, x4, y4, centerX, centerY };
         },
         rampLeftTop() {
@@ -107,11 +137,11 @@ export default defineComponent({
             const x2 = this.rampLeftTopCoordinates.x3;
             const y2 = this.rampLeftTopCoordinates.y3;
             const x3 = 0;
-            const y3 = y2 + this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180));
+            const y3 = y2 + this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180));
             const x4 = 0;
-            const y4 = y3 - this.RAMP_HEIGHT;
-            const centerX = this.RAMP_WIDTH / 2;
-            const centerY = y1 + (this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180))) / 2 + this.RAMP_HEIGHT / 2;
+            const y4 = y3 - this.rampConfig.height;
+            const centerX = this.rampWidth / 2;
+            const centerY = y1 + (this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180))) / 2 + this.rampConfig.height / 2;
             return { x1, y1, x2, y2, x3, y3, x4, y4, centerX, centerY };
         },
         rampLeftBottom() {
@@ -123,16 +153,16 @@ export default defineComponent({
             ]);
         },
         rampRightTopCoordinates() {
-            const x1 = this.CANVAS_WIDTH;
-            const y1 = this.RAMP_PERCECENTAGE_Y * this.CANVAS_HEIGHT;
-            const x2 = x1 - this.RAMP_WIDTH;
-            const y2 = y1 + this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180));
-            const x3 = x1 - this.RAMP_WIDTH;
-            const y3 = y2 + this.RAMP_HEIGHT;
-            const x4 = this.CANVAS_WIDTH;
-            const y4 = y1 + this.RAMP_HEIGHT;
-            const centerX = this.CANVAS_WIDTH - this.RAMP_WIDTH / 2;
-            const centerY = y1 + (this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180))) / 2 + this.RAMP_HEIGHT / 2;
+            const x1 = this.canvasConfig.width;
+            const y1 = this.rampConfig.percentageY * this.canvasConfig.height;
+            const x2 = x1 - this.rampWidth;
+            const y2 = y1 + this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180));
+            const x3 = x1 - this.rampWidth;
+            const y3 = y2 + this.rampConfig.height;
+            const x4 = this.canvasConfig.width;
+            const y4 = y1 + this.rampConfig.height;
+            const centerX = this.canvasConfig.width - this.rampWidth / 2;
+            const centerY = y1 + (this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180))) / 2 + this.rampConfig.height / 2;
             return { x1, y1, x2, y2, x3, y3, x4, y4, centerX, centerY };
         },
         rampRightTop() {
@@ -148,12 +178,12 @@ export default defineComponent({
             const y1 = this.rampRightTopCoordinates.y2;
             const x2 = this.rampRightTopCoordinates.x3;
             const y2 = this.rampRightTopCoordinates.y3;
-            const x3 = x2 + this.RAMP_WIDTH;
-            const y3 = y2 + this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180));
+            const x3 = x2 + this.rampWidth;
+            const y3 = y2 + this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180));
             const x4 = x3;
-            const y4 = y3 - this.RAMP_HEIGHT;
-            const centerX = this.CANVAS_WIDTH - this.RAMP_WIDTH / 2;
-            const centerY = y1 + (this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180))) / 2 + this.RAMP_HEIGHT / 2;
+            const y4 = y3 - this.rampConfig.height;
+            const centerX = this.canvasConfig.width - this.rampWidth / 2;
+            const centerY = y1 + (this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180))) / 2 + this.rampConfig.height / 2;
             return { x1, y1, x2, y2, x3, y3, x4, y4, centerX, centerY };
         },
         rampRightBottom() {
@@ -164,138 +194,164 @@ export default defineComponent({
                 { x: this.rampRightBottomCoordinates.x4, y: this.rampRightBottomCoordinates.y4 },
             ]);
         },
-        NAILS_Y_INIT() {
-            return this.RAMP_PERCECENTAGE_Y * this.CANVAS_HEIGHT + this.RAMP_WIDTH * Math.tan(this.RAMP_ANGLE * (Math.PI / 180)) + this.RAMP_HEIGHT + this.NAILS_Y_MARGIN_INIT;
+        nailsYInit() {
+            return (
+                this.rampConfig.percentageY * this.canvasConfig.height +
+                this.rampWidth * Math.tan(this.rampConfig.angle * (Math.PI / 180)) +
+                this.rampConfig.height +
+                this.nailsConfig.yMarginInit
+            );
         },
         nails() {
             const nails: Matter.Body[] = [];
-            this.NAILS_STRUCTURE.forEach((row) => nails.push(...this.createRowNails(row)));
+            this.nailsConfig.structure.forEach((row) => {
+                nails.push(...this.createRowNails(row));
+            });
             return nails;
         },
-        WALLS_N() {
-            return this.NAILS_STRUCTURE[this.NAILS_STRUCTURE.length - 1]["nails"];
+        wallsN() {
+            return this.nailsConfig.structure[this.nailsConfig.structure.length - 1].nails;
         },
-        WALLS_Y0() {
-            return this.NAILS_Y_INIT + 2 * this.NAILS_RADIUS * this.NAILS_STRUCTURE.length + this.NAILS_Y_MARGIN * (this.NAILS_STRUCTURE.length - 1);
+        wallsY0() {
+            return this.nailsYInit + 2 * this.nailsConfig.radius * this.nailsConfig.structure.length + this.nailsConfig.yMargin * (this.nailsConfig.structure.length - 1);
         },
-        WALLS_YF() {
-            return this.CANVAS_HEIGHT - this.BORDER_WIDTH;
+        wallsYF() {
+            return this.canvasConfig.height - this.canvasConfig.borderWidth;
         },
-        WALLS_CENTER_Y() {
-            return (this.WALLS_YF + this.WALLS_Y0) / 2;
+        wallsCenterY() {
+            return (this.wallsYF + this.wallsY0) / 2;
         },
-        WALLS_DELTA() {
-            return (this.WALLS_N - 1) / 2;
+        wallsDelta() {
+            return (this.wallsN - 1) / 2;
         },
-        WALLS_X_MARGIN() {
-            return this.NAILS_X_MARGIN;
+        wallsXMargin() {
+            return this.nailsConfig.xMargin;
         },
-        WALLS_CENTER_X_0() {
-            return this.CANVAS_WIDTH / 2 - this.WALLS_X_MARGIN * this.WALLS_DELTA;
+        wallsCenterX0() {
+            return this.canvasConfig.width / 2 - this.wallsXMargin * this.wallsDelta;
         },
         walls() {
-            return [...Array(this.WALLS_N).keys()].map((i) => {
-                return this.Bodies.rectangle(this.WALLS_CENTER_X_0 + i * this.WALLS_X_MARGIN, this.WALLS_CENTER_Y, this.WALLS_WIDTH, this.WALLS_YF - this.WALLS_Y0, {
+            return [...Array(this.wallsN).keys()].map((i) => {
+                return this.Bodies.rectangle(this.wallsCenterX0 + i * this.wallsXMargin, this.wallsCenterY, this.wallsConfig.width, this.wallsYF - this.wallsY0, {
                     isStatic: true,
                     sleepThreshold: Infinity,
                     render: {
-                        fillStyle: this.WALLS_COLOR,
+                        fillStyle: this.wallsConfig.color,
                         visible: true,
                     },
                 });
             });
         },
-        BALLS_HEIGHT_STOP() {
-            return this.WALLS_Y0 + 40;
+        ballsHeightStop() {
+            return this.wallsY0 + 40;
         },
     },
     methods: {
-        createBorderRectangle: function (x: number, y: number, W: number, H: number): Matter.Body {
+        createBorderRectangle(x: number, y: number, W: number, H: number): Matter.Body {
             return this.Bodies.rectangle(x, y, W, H, {
                 isStatic: true,
                 sleepThreshold: Infinity,
                 render: {
-                    fillStyle: this.BORDER_COLOR,
+                    fillStyle: this.canvasConfig.borderColor,
                     visible: true,
                 },
             });
         },
-        createParallelogram: function (center: { x: number; y: number }, vertices: { x: number; y: number }[]) {
+        createParallelogram(center: { x: number; y: number }, vertices: { x: number; y: number }[]) {
             return Matter.Body.create({
                 position: center,
                 vertices: vertices,
                 sleepThreshold: Infinity,
                 isStatic: true,
                 render: {
-                    fillStyle: this.BORDER_COLOR,
+                    fillStyle: this.canvasConfig.borderColor,
                     visible: true,
                 },
             });
         },
-        createRowNails: function (row: { id: number; nails: number }) {
+        createRowNails(row: { id: number; nails: number }) {
             let delta: number;
-            let center_x_0: number;
-            let center_y: number;
-            if (row["id"] % 2 !== 0) {
-                delta = (row["nails"] - 1) / 2;
-                center_x_0 = this.CANVAS_WIDTH / 2 - this.NAILS_X_MARGIN * delta;
-                center_y = this.NAILS_Y_INIT + this.NAILS_RADIUS + (this.NAILS_Y_MARGIN + 2 * this.NAILS_RADIUS) * (row["id"] - 1);
+            let centerX0: number;
+            let centerY: number;
+
+            if (row.id % 2 !== 0) {
+                delta = (row.nails - 1) / 2;
+                centerX0 = this.canvasConfig.width / 2 - this.nailsConfig.xMargin * delta;
+                centerY = this.nailsYInit + this.nailsConfig.radius + (this.nailsConfig.yMargin + 2 * this.nailsConfig.radius) * (row.id - 1);
             } else {
-                delta = row["nails"] / 2;
-                center_x_0 = this.CANVAS_WIDTH / 2 - this.NAILS_X_MARGIN * delta + this.NAILS_X_MARGIN / 2;
-                center_y = this.NAILS_Y_INIT + this.NAILS_RADIUS + (this.NAILS_Y_MARGIN + 2 * this.NAILS_RADIUS) * (row["id"] - 1);
+                delta = row.nails / 2;
+                centerX0 = this.canvasConfig.width / 2 - this.nailsConfig.xMargin * delta + this.nailsConfig.xMargin / 2;
+                centerY = this.nailsYInit + this.nailsConfig.radius + (this.nailsConfig.yMargin + 2 * this.nailsConfig.radius) * (row.id - 1);
             }
-            const rowNails = [...Array(row["nails"]).keys()].map((i) => {
-                return this.Bodies.circle(center_x_0 + i * this.NAILS_X_MARGIN, center_y, this.NAILS_RADIUS, {
+
+            const rowNails = [...Array(row.nails).keys()].map((i) => {
+                return this.Bodies.circle(centerX0 + i * this.nailsConfig.xMargin, centerY, this.nailsConfig.radius, {
                     frictionStatic: 0.00001,
                     isStatic: true,
                     sleepThreshold: Infinity,
                     render: {
-                        fillStyle: this.NAILS_COLOR,
+                        fillStyle: this.nailsConfig.color,
                     },
                 });
             });
+
             return rowNails;
         },
-        aleatorioEntre: function (a: number, b: number) {
+        randomInteger(a: number, b: number) {
             return a + Math.random() * (b - a);
         },
-        createBall: function () {
-            const ballX = this.aleatorioEntre(this.BORDER_WIDTH, this.CANVAS_WIDTH - this.BORDER_WIDTH);
-            const ball = this.Bodies.circle(ballX, this.BORDER_WIDTH, this.BALLS_RADIUS, {
-                friction: this.BALLS_FRICTION,
-                restitution: this.BALLS_RESTITUTION,
-                density: this.BALLS_DENSITY,
-                frictionAir: this.BALLS_FRICTION_AIR,
-                sleepThreshold: this.BALLS_SLEEP_TRESHHOLD,
+        createBall() {
+            const ballX = this.randomInteger(this.canvasConfig.borderWidth, this.canvasConfig.width - this.canvasConfig.borderWidth);
+
+            const color = this.ballsConfig.colors[this.simulationParams.ballColorIndex];
+            this.simulationParams.ballColorIndex = (this.simulationParams.ballColorIndex + 1) % this.ballsConfig.colors.length;
+
+            const ball = this.Bodies.circle(ballX, this.canvasConfig.borderWidth, this.ballsConfig.radius, {
+                friction: this.ballsConfig.friction,
+                restitution: this.ballsConfig.restitution,
+                density: this.ballsConfig.density,
+                frictionAir: this.ballsConfig.frictionAir,
+                sleepThreshold: this.ballsConfig.sleepThreshold,
+                render: {
+                    fillStyle: color,
+                },
             });
+
             return ball;
         },
-        simulate: function (engine: Matter.Engine) {
+        simulate(engine: Matter.Engine) {
+            // Generate a ball every spawnInterval milliseconds until we reach the configured number
             setInterval(() => {
-                if (this.isRunningSimulation) {
+                if (this.simulationParams.isRunning) {
                     const ball = this.createBall();
+
+                    // When the ball starts "sleeping", mark it as static (without stopping the simulation)
                     Matter.Events.on(ball, "sleepStart", () => {
                         Matter.Body.setStatic(ball, true);
-                        if (ball.position.y < this.BALLS_HEIGHT_STOP) {
-                            this.isRunningSimulation = false;
-                        }
                     });
+
                     this.World.add(engine.world, ball);
+                    this.simulationParams.ballCounter++;
+
+                    if (this.simulationParams.ballCounter >= this.ballsConfig.number) {
+                        this.simulationParams.isRunning = false;
+                    }
                 }
-            }, this.BALLS_MICROSECONDS_APPEAR);
+            }, this.ballsConfig.spawnInterval);
         },
     },
     mounted() {
         const engine = this.Engine.create({ enableSleeping: true });
+        engine.gravity.y = this.simulationParams.gravity;
+
         const render = this.Render.create({
             element: document.getElementById("galtonCanvasContainer") as HTMLElement,
             engine: engine,
             options: {
-                width: this.CANVAS_WIDTH,
-                height: this.CANVAS_HEIGHT,
+                width: this.canvasConfig.width,
+                height: this.canvasConfig.height,
                 wireframes: false,
-                background: this.CANVAS_BACKGROUND_COLOR,
+                background: this.canvasConfig.backgroundColor,
             },
         });
 
@@ -314,12 +370,9 @@ export default defineComponent({
 
         this.simulate(engine);
 
-        this.Runner.run(engine);
+        const runner = this.Runner.create();
+        this.Runner.run(runner, engine);
         this.Render.run(render);
     },
 });
 </script>
-
-<style scoped>
-
-</style>
